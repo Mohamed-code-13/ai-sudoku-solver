@@ -1,9 +1,27 @@
 from solver.sudoku_solver import SudokuSolver
 
 
-def print_result(board):
-    for row in board:
-        print(row)
+def print_board(board):
+    for r in range(len(board)):
+        if r > 0 and r % 3 == 0:
+            print('-' * 22)
+        for c in range(len(board[r])):
+            if c > 0 and c % 3 == 0:
+                print('|', end=' ')
+            print(board[r][c], end=' ')
+        print()
+
+
+def print_result(solution):
+    if not solution:
+        print("No solution exists.")
+    else:
+        board = [[0] * 9 for _ in range(9)]
+        for (i, j), value in solution.items():
+            board[i][j] = value
+        # for row in board:
+        #     print(" ".join(str(x) for x in row))
+        print_board(board)
 
 
 def main():
@@ -22,6 +40,8 @@ def main():
     solver = SudokuSolver(board)
     result = solver.solve()
 
+    print_board(board)
+    print('\n\n', '=' * 10, "SOLVING", '=' * 10, '\n\n')
     print_result(result)
 
 
