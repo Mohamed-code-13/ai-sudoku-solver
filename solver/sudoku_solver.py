@@ -1,4 +1,5 @@
 
+import random
 from solver.arc_consistency import ArcConsistency
 
 
@@ -30,6 +31,27 @@ class SudokuSolver:
 
             if self.arc.arc_consistency(new_domains, arcs):
                 res = self.backtracking(new_domains, arcs)
+                if res:
+                    return res
+
+        return None
+
+    def backtracking_with_randomniss(self, domains, arcs):
+        if self.is_solved(domains):
+            return self.convert_domain_to_solution(domains)
+
+        tile = self.get_min_remaining_value(domains)
+        if not tile:
+            return None
+
+        vals = sorted(domains[tile])
+        random.shuffle(vals)
+        for val in vals:
+            new_domains = self.copy_domains(domains)
+            new_domains[tile] = {val}
+
+            if self.arc.arc_consistency(new_domains, arcs):
+                res = self.backtracking_with_randomniss(new_domains, arcs)
                 if res:
                     return res
 
