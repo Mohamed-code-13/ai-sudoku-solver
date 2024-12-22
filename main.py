@@ -78,8 +78,9 @@ def main():
     # print('\n\n', '=' * 10, "SOLVING", '=' * 10, '\n\n')
     # print_result(result)
     gen = SudokuPuzzleGeneration()
-    solution = gen.generate_solution()
+    board, solution = gen.generate_board('hard')
 
+    print_board(board)
     print('\n\n', '=' * 10, "SOLVING", '=' * 10, '\n\n')
     print_result(solution)
 
