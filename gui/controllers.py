@@ -1,8 +1,10 @@
+import time
 from PyQt5.QtCore import QTimer
 from solver.sudoku_generation import SudokuPuzzleGeneration
 from solver.sudoku_solver import SudokuSolver
 from .game_window import GameWindow
 from .difficulty_window import DifficultyWindow
+
 
 class GameController:
     def __init__(self, main_window):
@@ -13,7 +15,12 @@ class GameController:
 
     def start_game(self, difficulty):
         self.difficulty = difficulty
+
+        start_time = time.time()
         board, solution = self.generator.generate_board(difficulty)
+        end_time = time.time()
+        print("Time:", end_time - start_time)
+
         self.game_window = GameWindow(self, difficulty)
         self.main_window.show_game_window(self.game_window)
 
@@ -52,7 +59,7 @@ class GameController:
         # for r in range(9):
         #     for c in range(9):
         #         self.game_window.board[r][c].setText(str(board[r][c]) if board[r][c] != 0 else "")
-        
+
         for r in range(9):
             row_styles = []
             for c in range(9):
@@ -64,12 +71,13 @@ class GameController:
                     row_styles.append('set')
                 else:
                     self.game_window.board[r][c].setText("")  # Empty tile
-                    self.game_window.board[r][c].setStyleSheet(empty_tile_style)
+                    self.game_window.board[r][c].setStyleSheet(
+                        empty_tile_style)
                     row_styles.append('empty')
 
             self.tile_styles.append(row_styles)
-        
-        print(self.tile_styles)
+
+        # print(self.tile_styles)
 
         self.game_window.set_tile_styles(self.tile_styles)
 
@@ -80,14 +88,19 @@ class GameController:
         self.game_window.start_timer()
         current_board = [
             [
-                int(self.game_window.board[r][c].text()) if self.game_window.board[r][c].text().isdigit() else 0
+                int(self.game_window.board[r][c].text(
+                )) if self.game_window.board[r][c].text().isdigit() else 0
                 for c in range(9)
             ]
             for r in range(9)
         ]
 
+        # print(current_board)
         solver = SudokuSolver(current_board)
+        start_time = time.time()
         solution = solver.solve()
+        end_time = time.time()
+        print("Time:", end_time - start_time)
 
         if solution:
             for (i, j), value in solution.items():

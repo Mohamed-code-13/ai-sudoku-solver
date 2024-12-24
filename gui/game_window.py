@@ -1,7 +1,10 @@
-from PyQt5.QtWidgets import QMainWindow, QPushButton, QVBoxLayout, QHBoxLayout, QLabel, QComboBox, QWidget, QGridLayout, QFrame
+from PyQt5.QtWidgets import QMainWindow, QPushButton, QVBoxLayout, QHBoxLayout, QLabel, QComboBox, QWidget, QGridLayout, QFrame, QInputDialog, QMessageBox
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QFont
 import time
+
+from solver.sudoku_solver import SudokuSolver
+
 
 class GameWindow(QWidget):
     def __init__(self, controller, difficulty):
@@ -45,6 +48,8 @@ class GameWindow(QWidget):
                 self.board[r][c].setFrameStyle(QFrame.Box)
                 self.board[r][c].setAlignment(Qt.AlignCenter)
                 self.board[r][c].setStyleSheet(cell_style)
+                self.board[r][c].mousePressEvent = lambda event, r=r, c=c: self.cell_clicked(
+                    r, c)
                 self.board_layout.addWidget(self.board[r][c], r, c)
 
         layout.addLayout(self.board_layout)
@@ -88,7 +93,7 @@ class GameWindow(QWidget):
 
         layout.addLayout(controls_layout)
         self.setLayout(layout)
-    
+
     def set_tile_styles(self, tile_styles):
         """Set the tile styles from the controller."""
         self.tile_styles = tile_styles
@@ -99,7 +104,7 @@ class GameWindow(QWidget):
         if not self.tile_styles or len(self.tile_styles) != 9 or len(self.tile_styles[0]) != 9:
             print("Error: tile_styles is not properly initialized!")
             return  # Exit early to prevent further errors
-    
+
         window_width = self.width()
         window_height = self.height()
         available_width = window_width * 0.75
@@ -107,7 +112,6 @@ class GameWindow(QWidget):
 
         size = min(available_width, available_height)
         cell_size = int(size // 9)
-        
 
         set_tile = """
             QLabel {
@@ -174,9 +178,45 @@ class GameWindow(QWidget):
             current_time = time.time() * 1_000_000  # Get the current time in microseconds
             elapsed_us = current_time - self.start_time
             milliseconds = int(elapsed_us // 1_000)  # Convert to milliseconds
-            microseconds = int(elapsed_us % 1_000)  # Get the remainder as microseconds
-            self.timer_label.setText(f"Timer: {milliseconds}.{microseconds:03d}ms")
+            # Get the remainder as microseconds
+            microseconds = int(elapsed_us % 1_000)
+            self.timer_label.setText(f"Timer: {milliseconds}.{
+                                     microseconds:03d}ms")
 
     def on_sudoku_solved(self):
         """Called when Sudoku puzzle is solved."""
         self.stop_timer()  # Stop the timer when the puzzle is solved
+
+    def cell_clicked(self, row, col):
+        """Handle clicking on a cell to input a number."""
+        current_value = self.board[row][col].text()
+        if len(current_value) == 0:
+            current_value = 0
+        else:
+            current_value = int(current_value)
+
+        number, ok = QInputDialog.getInt(self, "Enter Value", f"Enter a number for cell ({row+1}, {col+1}):",
+                                         value=current_value, min=1, max=9)
+
+        if ok:
+            b = self.get_board()
+            b[row][col] = number
+            solver = SudokuSolver(b)
+            sol = solver.solve()
+
+            if sol:
+                self.board[row][col].setText(str(number))
+            else:
+                QMessageBox.critical(self, "Error", 'Invalid Input')
+
+    def get_board(self):
+        b = [[0] * 9 for _ in range(9)]
+        for r in range(9):
+            for c in range(9):
+                val = self.board[r][c].text()
+                if len(val) == 0:
+                    val = 0
+                else:
+                    val = int(val)
+                b[r][c] = val
+        return b
