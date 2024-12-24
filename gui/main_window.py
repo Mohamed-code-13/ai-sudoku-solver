@@ -1,48 +1,15 @@
-# from PyQt5.QtWidgets import QMainWindow, QPushButton, QVBoxLayout, QHBoxLayout, QLabel, QComboBox, QWidget, QGridLayout, QFrame
-# from PyQt5.QtCore import Qt
-# from PyQt5.QtGui import QFont
-# from .controllers import GameController
-
-# class MainWindow(QMainWindow):
-#     def __init__(self):
-#         super().__init__()
-#         self.setWindowTitle("Sudoku Solver")
-#         self.setGeometry(100, 100, 800, 600)
-#         self.controller = GameController(self)
-
-#         # Initialize UI
-#         self.init_ui()
-
-#     def init_ui(self):
-
-#         self.game_title = QLabel("SUDOKU")
-#         self.game_title.setFont(QFont("Press Start 2P", 12))
-
-#         self.play_button = QPushButton("Play")
-#         self.play_button.setStyleSheet("""
-#             QPushButton {
-#                 background-color: #333;
-#                 border: 2px solid #333;
-#                 border-radius: 5px;
-#                 padding: 5px;
-#                 font-size: 12px;
-#                 font-family: 'Press Start 2P';
-#                 color: #f0f0f0;
-#             }
-#         """)
-#         self.play_button.clicked.connect(self.controller.show_difficulty_window)
-
-#         self.addWidget(self.game_title)
-#         self.addWidget(self.play_button)
-
-from PyQt5.QtWidgets import QMainWindow, QVBoxLayout,  QWidget, QStackedWidget
+from PyQt5.QtWidgets import QMainWindow, QVBoxLayout,  QWidget, QStackedWidget, QApplication
 from .main_menu_window import MainMenuWindow
 from .difficulty_window import DifficultyWindow
-from .game_window import GameWindow
+from .game_modes import GameModesWindow
+from .user_input_window import UserInputWindow
+from .controllers import GameController
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.controller = GameController(self)
+        self.setMinimumSize(700, 300)
         self.init_ui()
 
     def init_ui(self):
@@ -52,12 +19,14 @@ class MainWindow(QMainWindow):
 
         self.stack = QStackedWidget()
         self.main_menu_window = MainMenuWindow(self)
-        self.difficulty_window = DifficultyWindow(self)
-        # self.game_window = GameWindow(self)
+        self.game_modes_window = GameModesWindow(self) 
+        self.user_input_window = UserInputWindow()
+        self.difficulty_window = DifficultyWindow(self.controller)
 
         self.stack.addWidget(self.main_menu_window)
+        self.stack.addWidget(self.game_modes_window)
+        self.stack.addWidget(self.user_input_window)
         self.stack.addWidget(self.difficulty_window)
-        # self.stack.addWidget(self.game_window)
 
         self.stack.setCurrentWidget(self.main_menu_window)
 
@@ -67,9 +36,25 @@ class MainWindow(QMainWindow):
         l.setLayout(main_layout)
         self.setCentralWidget(l)
     
+    def toggle_fullscreen(self):
+        """Toggle fullscreen while ensuring the window fits the screen properly."""
+        if self.isFullScreen():
+            self.showNormal()  # Exit fullscreen mode
+        else:
+            screen = QApplication.primaryScreen()
+            available_geometry = screen.availableGeometry()  # Get usable screen space
+            self.setGeometry(available_geometry)  # Adjust window geometry to fit the screen
+            self.showFullScreen()
+
+    def show_game_modes_window(self):
+        self.stack.setCurrentWidget(self.game_modes_window)
+
+    def show_user_input_window(self):
+        self.stack.setCurrentWidget(self.user_input_window)
+
     def show_difficulty_window(self):
         self.stack.setCurrentWidget(self.difficulty_window)
     
-    def show_game_window(self):
-        """Switch to the DifficultyWindow."""
-        self.stack.setCurrentWidget(self.game_window)
+    def show_game_window(self, game_window):
+        self.stack.addWidget(game_window)
+        self.stack.setCurrentWidget(game_window)
