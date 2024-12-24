@@ -33,7 +33,7 @@ class MainMenuWindow(QWidget):
             }
         """)
         self.play_button.setFixedWidth(600)
-        self.play_button.clicked.connect(self.main_window.show_difficulty_window)
+        self.play_button.clicked.connect(self.main_window.show_game_modes_window)
 
         layout.addWidget(self.game_title)
         layout.addWidget(self.play_button, alignment=Qt.AlignHCenter)
