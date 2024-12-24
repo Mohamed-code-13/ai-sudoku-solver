@@ -108,8 +108,6 @@ class GameWindow(QWidget):
         size = min(available_width, available_height)
         cell_size = int(size // 9)
         
-        print(self.tile_styles)
-
 
         set_tile = """
             QLabel {

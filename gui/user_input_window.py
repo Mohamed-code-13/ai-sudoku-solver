@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QHBoxLayout, QWidget, QGridLayout, QLabel, QVBoxLayout, QPushButton, QFrame, QInputDialog, QMessageBox
 from PyQt5.QtCore import Qt
+from solver.sudoku_solver import SudokuSolver
 
 class UserInputWindow(QWidget):
     def __init__(self):
@@ -86,19 +87,27 @@ class UserInputWindow(QWidget):
             self.board[row][col] = number
             self.labels[row][col].setText(str(number))
 
+    def update_tile(self, row, col, value):
+        self.labels[row][col].setText(str(value))
+        self.board[row][col] = value
+
     def solve_button_clicked(self):
         """Validate the board when the user clicks the confirm button."""
         if self.is_solvable(self.board):
-            self.solve_board()  # You can implement your solving logic here
+            for (i, j), value in self.solution.items():
+                self.update_tile(i, j, value)
         else:
             self.show_error_message("The Sudoku puzzle is not solvable!")
 
     def is_solvable(self, board):
         """Check if the Sudoku board is solvable."""
-        for row in board:
-            if len(set(row)) != len([x for x in row if x != 0]):
-                return False
-        return True
+        solver = SudokuSolver(board)
+        self.solution = solver.solve()
+
+        if self.solution:
+            return True
+        else:
+            return False
 
     def solve_board(self):
         """Solve the Sudoku puzzle."""

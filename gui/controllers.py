@@ -86,7 +86,6 @@ class GameController:
             for r in range(9)
         ]
 
-        print(current_board)
         solver = SudokuSolver(current_board)
         solution = solver.solve()
 
