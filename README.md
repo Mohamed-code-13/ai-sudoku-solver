@@ -179,7 +179,7 @@ The player also has the option to click on an empty tile and enter a value. If t
   </div>
 </div>
 <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
-    <img src="assets/Figure7.png" alt="Solved Puzzle">
+    <img src="assets/Figure7.png" alt="Solved Puzzle" style="width: 400px;">
     <p><em>Figure 10 - Solved Puzzle</em></p>
 </div>
 
